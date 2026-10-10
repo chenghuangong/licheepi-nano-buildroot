@@ -1,0 +1,31 @@
+#!/bin/sh
+# Start the UVC camera viewer on the onboard LCD after boot.
+DAEMON=/usr/bin/uvcshow
+OPTS_FILE=/etc/uvcshow.opts
+LOG=/tmp/uvcshow.log
+
+case "$1" in
+  start)
+    (
+      i=0
+      while [ ! -e /dev/video0 ] && [ "$i" -lt 60 ]; do
+        sleep 0.5; i=$(($i + 1))
+      done
+      [ -x "$DAEMON" ] || exit 0
+      OPTS=$(cat "$OPTS_FILE" 2>/dev/null)
+      $DAEMON $OPTS >> "$LOG" 2>&1
+    ) &
+    ;;
+  stop)
+    killall uvcshow 2>/dev/null
+    ;;
+  restart|reload)
+    "$0" stop
+    sleep 1
+    "$0" start
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|restart}"
+    exit 1
+esac
+exit 0

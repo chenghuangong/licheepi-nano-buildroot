@@ -12,6 +12,15 @@
 };
 
 /*
+ * USB OTG port is wired as host on this custom board (USB-A with 5V VBUS
+ * output) for the UVC camera, so pin the role to host and skip ID/VBUS
+ * dual-role detection.
+ */
+&usb_otg {
+	dr_mode = "host";
+};
+
+/*
 &panel {
 	// override default resolution (800x480) with smaller resolution: 480x272
 	compatible = "qiaodian,qd43003c0-40", "simple-panel";

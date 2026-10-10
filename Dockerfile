@@ -11,6 +11,7 @@ FROM $BASE_IMAGE:$BASE_VERSION AS local
 WORKDIR /root/licheepi-nano
 COPY board/ board/
 COPY configs/ configs/
+COPY package/ package/
 COPY \
     Config.in \
     external.desc \
@@ -31,3 +32,24 @@ RUN make
 # expose built image files in standalone root folder
 FROM scratch AS localout
 COPY --from=local /root/buildroot/output/images/ .
+
+# app-only rebuild: reuse base kernel/u-boot (no linux/uboot stamp reset),
+# only reconfigure + rebuild the uvcshow package and regenerate the image.
+FROM $BASE_IMAGE:$BASE_VERSION AS app
+
+WORKDIR /root/licheepi-nano
+COPY board/ board/
+COPY configs/ configs/
+COPY package/ package/
+COPY \
+    Config.in \
+    external.desc \
+    external.mk \
+    ./
+
+WORKDIR /root/buildroot
+RUN BR2_EXTERNAL=/root/licheepi-nano make licheepi_nano_defconfig
+RUN make
+
+FROM scratch AS appout
+COPY --from=app /root/buildroot/output/images/ .

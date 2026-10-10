@@ -1,0 +1,20 @@
+config BR2_PACKAGE_UVCSHOW
+	bool "uvcshow"
+	depends on BR2_PACKAGE_JPEG
+	help
+	  Live MJPEG UVC webcam viewer for the LicheePi Nano F1C100S.
+	  Captures /dev/video0, decodes JPEG and blits a scaled/rotated
+	  image to /dev/fb0 (800x480 LCD).
+
+choice
+	prompt "Default JPEG decode scale"
+	depends on BR2_PACKAGE_UVCSHOW
+	default BR2_PACKAGE_UVCSHOW_SCALE_HALF
+
+config BR2_PACKAGE_UVCSHOW_SCALE_FULL
+	bool "full 240x320 (sharper, ~11 fps)"
+
+config BR2_PACKAGE_UVCSHOW_SCALE_HALF
+	bool "half 120x160 (smoother, ~22 fps)"
+
+endchoice
